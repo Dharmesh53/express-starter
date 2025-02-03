@@ -1,0 +1,54 @@
+{
+  "name": "express-starter",
+  "version": "1.0.0",
+  "description": "Starter Code for Express App",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "nodemon",
+    "inspect": "nodemon --inspect src/app.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dharmesh53/express-starter.git"
+  },
+  "keywords": [
+    "boilerplate",
+    "js",
+    "javascript",
+    "typescript",
+    "node",
+    "express"
+  ],
+  "author": "Dharmesh",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.19.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.6",
+    "reflect-metadata": "^0.2.2",
+    "typedi": "^0.10.0",
+    "winston": "^3.17.0"
+  }
+}
