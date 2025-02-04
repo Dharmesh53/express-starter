@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends('plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
+  ...compat.extends('plugin:@typescript-eslint/recommended'),
   {
     languageOptions: {
       parser: tsParser,
