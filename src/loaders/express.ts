@@ -1,11 +1,11 @@
 import express, { Application } from "express"
-import { config } from "@/config"
+import { config, Env, HttpStatusCode } from "@/config"
 import routes from "@/api"
 import cors from "cors"
 import helmet from "helmet";
+import { ErrorHandler } from "@/errors/error-handler";
 
 export default async function({ app }: { app: Application }) {
-
   app.use(helmet())
 
   app.head('/status', (_, res) => {
@@ -32,4 +32,8 @@ export default async function({ app }: { app: Application }) {
   app.use(express.urlencoded({ extended: true }));
 
   app.use(config.api.prefix, routes())
+
+  app.use(ErrorHandler.handle404)
+
+  app.use(ErrorHandler.handle({ showStack: config.nodeEnv === Env.DEV }))
 }
