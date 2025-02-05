@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import Logger from "@/loaders/logger"
-import { AppError } from "@/errors"
+import { AppError } from "@/errors/app-error"
+import { HttpStatusCode } from "@/config"
 
 export const SignUpController = async (req: Request, res: Response, next: NextFunction) => {
   Logger.debug("Calling Sign-Up endpoint with body: %o", req.body)
