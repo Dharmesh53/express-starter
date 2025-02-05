@@ -1,5 +1,5 @@
 import express, { Application } from "express"
-import config from "@/config"
+import { config } from "@/config"
 import routes from "@/api"
 import cors from "cors"
 import helmet from "helmet";
@@ -14,10 +14,7 @@ export default async function({ app }: { app: Application }) {
 
   app.use(cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        'http://localhost:3000',
-        'https://productionURL.com'
-      ]
+      const allowedOrigins = [...config.origins]
 
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true)
@@ -28,7 +25,6 @@ export default async function({ app }: { app: Application }) {
     credentials: true,
     preflightContinue: false,
     maxAge: 600,
-    optionsSuccessStatus: 204
   }))
 
   app.use(express.json())

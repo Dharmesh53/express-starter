@@ -7,5 +7,5 @@
   "ignore": [
     "src/**/*.spec.ts"
   ],
-  "exec": "ts-node -r tsconfig-paths/register --transpile-only ./src/app.ts"
+  "exec": "NODE_ENV=development ts-node -r tsconfig-paths/register --transpile-only ./src/app.ts"
 }

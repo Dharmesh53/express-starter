@@ -1,14 +1,16 @@
-import UserModel from "@/models/user"
 import databaseLoader from "./database"
-import dependencyInjector from "./dependencyInjector"
 import expressLoader from "./express"
 import Logger from "./logger"
+import fs from 'fs'
 
 export default async ({ expressApp }) => {
-  const databaseConnection = await databaseLoader()
+  await databaseLoader()
   Logger.info("~ Database Connected")
 
-  dependencyInjector({ databaseConnection, models: [UserModel] })
+  const models = fs.readdirSync('./src/models/');
+  models.forEach(async (model) => {
+    await import(`../models/${model}`)
+  })
 
   await expressLoader({ app: expressApp })
   Logger.info("~ Configured Express")

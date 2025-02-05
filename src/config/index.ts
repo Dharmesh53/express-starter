@@ -20,10 +20,12 @@ const getenv = (key: string, defaultValue: string = '') => {
 
 process.env.NODE_ENV = getenv('NODE_ENV', 'development');
 
-export default {
+export const config = {
   port: parseInt(getenv('PORT'), 10),
 
   databaseUrl: getenv('MONGODB_URI'),
+
+  origins: getenv('ORIGINS').split(','),
 
   jwt: {
     secret: getenv('JWT_SECRET'),
