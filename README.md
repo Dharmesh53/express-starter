@@ -1,8 +1,6 @@
 This is just a stater templete for express app, making everything more organized.
-This follows service repositry pattern with dependency injections using `typedi` and `reflect-metadata`
 
-The API by itself doesn't do anything fancy, it's just a user CRUD with authentication capabilities.
-Maybe we can transform this into something useful, a more advanced example.
+The API by itself doesn't do anything fancy, Maybe we can transform this into something useful, a more advanced example.
 
 ## How to run it
 
