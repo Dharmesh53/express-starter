@@ -37,7 +37,7 @@ export const config = {
   },
 
   api: {
-    prefix: '/api',
+    v1Prefix: '/api/v1',
   },
 };
 
@@ -72,5 +72,17 @@ export enum Env {
   PROD = 'production'
 }
 
+export const corsConfig = {
+  origin: (origin: string, callback: (error: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = [...config.origins]
 
-
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error("Sorry bud, you are not allowed !!"))
+    }
+  },
+  credentials: true,
+  preflightContinue: false,
+  maxAge: 600,
+}

@@ -11,6 +11,7 @@ export default async ({ expressApp }) => {
   models.forEach(async (model) => {
     await import(`../models/${model}`)
   })
+  Logger.info("~ Models Synced")
 
   await expressLoader({ app: expressApp })
   Logger.info("~ Configured Express")

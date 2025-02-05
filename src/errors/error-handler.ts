@@ -12,15 +12,17 @@ export class ErrorHandler {
         Logger.error(`${error.name}: ${error.message}`)
       }
 
+      // you can send mail to admin to error severity is high
+
       res.status(error.statusCode).json({
         status: 'error',
         message: error.message,
-        ...(options.showStack && { stack: error.stack }),
+        ...(options.showStack && { stack: error.stack }), //genius
       })
     }
   }
 
-  static handle404(req: Request, res: Response, next: NextFunction) {
+  static handle404(_: Request, __: Response, next: NextFunction) {
     next(new AppError('Not Found', HttpStatusCode.NOT_FOUND, CommanErrorsDict.resourceNotFound, true))
   }
 }

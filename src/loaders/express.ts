@@ -1,37 +1,25 @@
-import express, { Application } from "express"
-import { config, Env, HttpStatusCode } from "@/config"
-import routes from "@/api"
+import v1Routes from "@/api/v1"
 import cors from "cors"
 import helmet from "helmet";
+import express from "express"
+import { config, corsConfig, Env, HttpStatusCode } from "@/config"
 import { ErrorHandler } from "@/errors/error-handler";
+import { validateVersion } from "@/utils";
 
-export default async function({ app }: { app: Application }) {
+export default async function({ app }: { app: express.Application }) {
   app.use(helmet())
 
-  app.head('/status', (_, res) => {
-    res.status(HttpStatusCode.OK).end();
-  })
+  app.head('/status', (_, res) => { res.status(HttpStatusCode.OK).end() })
 
-  app.use(cors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [...config.origins]
+  app.use(cors(corsConfig))
 
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true)
-      } else {
-        callback(new Error("Sorry bud, you are not allowed !!"))
-      }
-    },
-    credentials: true,
-    preflightContinue: false,
-    maxAge: 600,
-  }))
+  app.use(validateVersion('v1'))
 
   app.use(express.json())
 
   app.use(express.urlencoded({ extended: true }));
 
-  app.use(config.api.prefix, routes())
+  app.use(config.api.v1Prefix, v1Routes())
 
   app.use(ErrorHandler.handle404)
 
