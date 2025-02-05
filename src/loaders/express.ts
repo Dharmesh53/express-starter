@@ -5,6 +5,7 @@ import express from "express"
 import { config, corsConfig, Env, HttpStatusCode } from "@/config"
 import { ErrorHandler } from "@/errors/error-handler";
 import { validateVersion } from "@/utils";
+import { morganMiddleware } from "./logger";
 
 export default async function({ app }: { app: express.Application }) {
   app.use(helmet())
@@ -15,6 +16,8 @@ export default async function({ app }: { app: express.Application }) {
 
   app.use(validateVersion('v1'))
 
+  app.use(morganMiddleware)
+
   app.use(express.json())
 
   app.use(express.urlencoded({ extended: true }));
@@ -24,4 +27,5 @@ export default async function({ app }: { app: express.Application }) {
   app.use(ErrorHandler.handle404)
 
   app.use(ErrorHandler.handle({ showStack: config.nodeEnv === Env.DEV }))
+
 }

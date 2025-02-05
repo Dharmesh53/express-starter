@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import Logger from "@/loaders/logger"
+import { Logger } from "@/loaders/logger"
 import { AppError } from "@/errors/app-error"
 import { HttpStatusCode } from "@/config"
 

@@ -1,5 +1,5 @@
 import { CommanErrorsDict, HttpStatusCode } from "@/config"
-import Logger from "@/loaders/logger"
+import { Logger } from "@/loaders/logger"
 import { NextFunction, Response, Request } from "express"
 import { AppError } from "./app-error"
 

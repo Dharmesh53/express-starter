@@ -1,6 +1,6 @@
 import databaseLoader from "./database"
 import expressLoader from "./express"
-import Logger from "./logger"
+import { Logger } from "./logger"
 import fs from 'fs'
 
 export default async ({ expressApp }) => {
