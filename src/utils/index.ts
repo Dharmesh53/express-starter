@@ -1,15 +1,25 @@
 import { HttpStatusCode } from "@/config";
-import { AppError } from "@/errors/app-error";
-import { Request, Response, NextFunction } from "express"
+import { Request, Response, NextFunction } from "express";
 
-export const validateVersion = (allowedVersion: string) => {
-  return (req: Request, _: Response, next: NextFunction) => {
-    const requestedVersion = req.path.split('/')[2];
+export class AppResponse {
+  public readonly statusCode: HttpStatusCode
+  public readonly data: Record<string, unknown>
+  public readonly message: string
+  public readonly success: boolean
 
-    if (requestedVersion !== allowedVersion) {
-      throw new AppError('Invalid Version', HttpStatusCode.BAD_REQUEST, `Only ${allowedVersion} is supported`, true)
-    }
+  constructor(statusCode: HttpStatusCode, data: Record<string, unknown>, message: string = "Success") {
+    this.success = statusCode < 400
+    this.statusCode = statusCode
+    this.message = message
+    this.data = data
+  }
+}
 
-    next()
+
+type RequestHandler = (req: Request, res: Response, next?: NextFunction) => unknown;
+
+export function catchEmAll(requestHandler: RequestHandler) {
+  return function(req: Request, res: Response, next: NextFunction) {
+    Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))
   }
 }

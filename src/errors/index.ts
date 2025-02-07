@@ -1,4 +1,4 @@
-import Logger from "@/loaders/logger"
+import { Logger } from "@/loaders/logger"
 
 process.on("uncaughtException", (error: Error) => {
   Logger.error('Uncaught Exception: ', error.message)

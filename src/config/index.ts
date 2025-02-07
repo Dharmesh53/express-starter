@@ -1,4 +1,7 @@
+import { AppError } from '@/errors/app-error';
 import dotenv from 'dotenv';
+import { Request, Response, NextFunction } from "express"
+import rateLimit from 'express-rate-limit';
 
 const envFound = dotenv.config();
 
@@ -26,6 +29,8 @@ export const config = {
   origins: getenv('ORIGINS').split(','),
 
   nodeEnv: getenv('NODE_ENV', 'development'),
+
+  maxRequests: 5,
 
   jwt: {
     secret: getenv('JWT_SECRET'),
@@ -64,7 +69,10 @@ export enum HttpStatusCode {
 }
 
 export enum CommanErrorsDict {
+  routeNotFound = 'Route not found',
   resourceNotFound = 'Resource not found',
+  notAllowed = "Sorry bud, you are not allowed !!",
+  tooManyRequests = 'Too many Requests, Please try again later.',
 }
 
 export enum Env {
@@ -79,10 +87,40 @@ export const corsConfig = {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback(new Error("Sorry bud, you are not allowed !!"))
+      callback(new AppError(HttpStatusCode.FORBIDDEN, 'Not allowed', "Sorry bud, you are not allowed !!"))
     }
   },
   credentials: true,
   preflightContinue: false,
   maxAge: 600,
+}
+
+export const validateVersion = (allowedVersion: string) => {
+  return (req: Request, _: Response, next: NextFunction) => {
+    const requestedVersion = req.path.split('/')[2];
+
+    if (requestedVersion !== allowedVersion) {
+      throw new AppError(HttpStatusCode.BAD_REQUEST, 'Invalid Version', `Only ${allowedVersion} is supported`)
+    }
+
+    next()
+  }
+}
+
+export const limiter = (maxRequests: number, time: number) => {
+  return rateLimit({
+    max: maxRequests,
+    windowMs: time,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+      return req.clientIp;
+    },
+    handler: (_, __, ___, options) => {
+      throw new AppError(
+        options.statusCode || HttpStatusCode.INTERNAL_SERVER_ERROR,
+        'Too many request',
+        CommanErrorsDict.tooManyRequests)
+    }
+  })
 }

@@ -34,9 +34,13 @@ const morganStream = {
   }
 }
 
+const skip = () => {
+  return config.nodeEnv !== Env.DEV
+}
+
 const morganMiddleware = morgan(
   ':method :url :status :res[content-length] - :response-time ms',
-  { stream: morganStream }
+  { stream: morganStream, skip }
 )
 
 export { Logger, morganMiddleware };

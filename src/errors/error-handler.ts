@@ -2,10 +2,18 @@ import { CommanErrorsDict, HttpStatusCode } from "@/config"
 import { Logger } from "@/loaders/logger"
 import { NextFunction, Response, Request } from "express"
 import { AppError } from "./app-error"
+import mongoose from "mongoose"
 
 export class ErrorHandler {
   static handle(options = { showStack: true }) {
-    return (error: AppError, _: Request, res: Response, next: NextFunction) => {
+    return (err: Error, req: Request, res: Response, _: NextFunction) => {
+      let error = err;
+
+      if (!(error instanceof AppError)) {
+        const statusCode = error instanceof mongoose.Error ? HttpStatusCode.BAD_REQUEST : HttpStatusCode.INTERNAL_SERVER_ERROR
+        error = new AppError(statusCode, "This is messed up, brother.", `It is a unexpected one, ${error.message}!!`)
+      }
+
       if (options.showStack) {
         Logger.error(error.stack)
       } else {
@@ -14,16 +22,19 @@ export class ErrorHandler {
 
       // you can send mail to admin to error severity is high
 
-      res.status(error.statusCode).json({
-        status: 'error',
+      const response = {
+        success: false,
+        error: error.name,
         message: error.message,
-        ...(options.showStack && { stack: error.stack }), //genius
-      })
+        ...(options.showStack && { stack: error.stack }),
+      }
+
+      res.status((error as AppError).statusCode).json(response)
     }
   }
 
-  static handle404(_: Request, __: Response, next: NextFunction) {
-    next(new AppError('Not Found', HttpStatusCode.NOT_FOUND, CommanErrorsDict.resourceNotFound, true))
+  static throw404(_: Request, __: Response, next: NextFunction) {
+    next(new AppError(HttpStatusCode.NOT_FOUND, 'Not Found', CommanErrorsDict.routeNotFound))
   }
 }
 

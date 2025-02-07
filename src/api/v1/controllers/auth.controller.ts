@@ -9,7 +9,7 @@ export const SignUpController = async (req: Request, res: Response, next: NextFu
     res.status(HttpStatusCode.CREATED).json({ data: "somedata" })
   } catch (error) {
     const errorMessage = error?.message ?? "An unexpected error occurred"
-    next(new AppError('Forbidden', HttpStatusCode.INTERNAL_SERVER_ERROR, errorMessage, true));
+    next(new AppError(HttpStatusCode.INTERNAL_SERVER_ERROR, 'Forbidden', errorMessage));
   }
 }
 
@@ -19,6 +19,6 @@ export const SignInController = async (req: Request, res: Response, next: NextFu
     res.status(HttpStatusCode.OK).json({ data: "somedata" })
   } catch (error) {
     const errorMessage = error?.message ?? "An unexpected error occurred"
-    next(new AppError('Forbidden', HttpStatusCode.INTERNAL_SERVER_ERROR, errorMessage, true));
+    next(new AppError(HttpStatusCode.INTERNAL_SERVER_ERROR, 'Forbidden', errorMessage));
   }
 }
