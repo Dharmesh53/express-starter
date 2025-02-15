@@ -38,7 +38,7 @@ export const config = {
   },
 
   logs: {
-    level: getenv('LOG_LEVEL', 'silly'),
+    level: getenv('LOG_LEVEL', 'debug'),
   },
 
   api: {
@@ -87,7 +87,7 @@ export const corsConfig = {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback(new AppError(HttpStatusCode.FORBIDDEN, 'Not allowed', "Sorry bud, you are not allowed !!"))
+      callback(new AppError(HttpStatusCode.FORBIDDEN, 'Not allowed', CommanErrorsDict.notAllowed))
     }
   },
   credentials: true,

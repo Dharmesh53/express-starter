@@ -1,42 +1,77 @@
 import winston from 'winston';
-import { config, Env } from '@/config';
 import morgan from "morgan"
+import { config } from '@/config';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
-const transports = [];
-if (process.env.NODE_ENV !== Env.DEV) {
-  transports.push(new winston.transports.Console());
-} else {
-  transports.push(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.cli(),
-        winston.format.splat(),
-        winston.format.colorize({ all: true }),
-        winston.format.align(),
-        winston.format.errors({ stack: true }),
-        winston.format.json(),
-        winston.format.timestamp({ format: 'hh:mm:ss.SSS A' }),
-        winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`),
-      ),
-    }),
-  );
+const createTransports = () => {
+  if (process.env.NODE_ENV !== "development") {
+    return [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json(),
+        )
+      }),
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json(),
+        )
+      }),
+      createInfoFileTransport()
+    ];
+  } else {
+    return [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.cli(),
+          winston.format.timestamp({ format: 'hh:mm:ss.SSS A' }),
+          winston.format.errors({ stack: true }),
+          winston.format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`),
+          winston.format.align(),
+          winston.format.colorize({ all: true }),
+        ),
+      })
+    ]
+  }
+}
+
+const createInfoFileTransport = () => {
+  return new DailyRotateFile({
+    filename: "logs/app-%DATE%.log",
+    datePattern: 'DD-MM',
+    zippedArchive: false,
+    maxSize: '5m',
+    maxFiles: '4d',
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json(),
+    )
+  })
 }
 
 const Logger = winston.createLogger({
   level: config.logs.level,
   levels: winston.config.npm.levels,
-  transports,
+  transports: createTransports(),
+  exceptionHandlers: [
+    new winston.transports.File({ filename: 'logs/exceptions.log' }),
+  ],
+  rejectionHandlers: [
+    new winston.transports.File({ filename: 'logs/rejections.log' }),
+  ],
 });
 
 const morganStream = {
   write: (message: string) => {
-    Logger.info(message.trim())
+    Logger.http(message.trim())
   }
 }
 
-const skip = () => {
-  return config.nodeEnv !== Env.DEV
-}
+const skip = () => process.env.NODE_ENV !== "development"
 
 const morganMiddleware = morgan(
   ':method :url :status :res[content-length] - :response-time ms',
