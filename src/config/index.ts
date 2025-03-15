@@ -73,6 +73,7 @@ export enum CommanErrorsDict {
   resourceNotFound = 'Resource not found',
   notAllowed = "Sorry bud, you are not allowed !!",
   tooManyRequests = 'Too many Requests, Please try again later.',
+  unexpectedError = "An unexpected error occurred",
 }
 
 export enum Env {

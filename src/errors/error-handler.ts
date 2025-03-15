@@ -1,40 +1,69 @@
-import { CommanErrorsDict, HttpStatusCode } from "@/config"
-import { Logger } from "@/loaders/logger"
-import { NextFunction, Response, Request } from "express"
-import { AppError } from "./app-error"
-import mongoose from "mongoose"
+import { CommanErrorsDict, HttpStatusCode } from "@/config";
+import { Logger } from "@/loaders/logger";
+import { NextFunction, Response, Request } from "express";
+import { AppError } from "./app-error";
+import mongoose from "mongoose";
+import { ZodError } from "zod";
 
 export class ErrorHandler {
   static handle(options = { showStack: true }) {
     return (err: Error, req: Request, res: Response, _: NextFunction) => {
-      let error = err;
+      let error: AppError;
 
-      if (!(error instanceof AppError)) {
-        const statusCode = error instanceof mongoose.Error ? HttpStatusCode.BAD_REQUEST : HttpStatusCode.INTERNAL_SERVER_ERROR
-        error = new AppError(statusCode, "This is messed up, brother.", `It is a unexpected one, ${error.message}!!`)
+      if (err instanceof ZodError) {
+        error = new AppError(
+          HttpStatusCode.BAD_REQUEST,
+          "ValidationError",
+          "Invalid input data",
+          [err.flatten()]
+        );
+      }
+      else if (err instanceof mongoose.Error) {
+        error = new AppError(
+          HttpStatusCode.BAD_REQUEST,
+          `MongoDbError, ${err.name}`,
+          err.message
+        );
+      }
+      else if (err instanceof AppError) {
+        error = err;
+      }
+      else {
+        error = new AppError(
+          HttpStatusCode.INTERNAL_SERVER_ERROR,
+          err.name || "InternalServerError",
+          err.message || CommanErrorsDict.unexpectedError
+        );
       }
 
       if (options.showStack) {
-        Logger.error(error.stack)
+        if (error.statusCode < 500) {
+          Logger.warn(error.stack);
+        } else {
+          Logger.error(error.stack);
+        }
       } else {
-        Logger.error(`${error.name}: ${error.message}`)
+        if (error.statusCode < 500) {
+          Logger.warn(`${error.name}: ${error.message}`);
+        } else {
+          Logger.error(`${error.name}: ${error.message}`);
+        }
       }
 
-      // you can send mail to admin to error severity is high
-
-      const response = {
+      const response: Record<string, unknown> = {
         success: false,
+        statusCode: error.statusCode,
         error: error.name,
         message: error.message,
+        ...(error.details?.length > 0 && { details: error.details }),
         ...(options.showStack && { stack: error.stack }),
-      }
+      };
 
-      res.status((error as AppError).statusCode).json(response)
-    }
+      res.status(error.statusCode).json(response);
+    };
   }
 
   static throw404(_: Request, __: Response, next: NextFunction) {
-    next(new AppError(HttpStatusCode.NOT_FOUND, 'Not Found', CommanErrorsDict.routeNotFound))
+    next(new AppError(HttpStatusCode.NOT_FOUND, "Not Found", CommanErrorsDict.routeNotFound));
   }
 }
-
